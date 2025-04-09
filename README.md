@@ -45,7 +45,7 @@ pnpm run dev
 cd python-code-executor/backend
 
 # 创建并激活虚拟环境
-python3 -m venv venv
+python -m venv venv
 source venv/bin/activate  # Linux/Mac
 # 或 venv\Scripts\activate  # Windows
 

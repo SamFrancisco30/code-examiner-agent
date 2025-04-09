@@ -3,7 +3,7 @@ import Editor from '@monaco-editor/react';
 import './CodeEditor.css';
 
 const CodeEditor = () => {
-  const [code, setCode] = useState('# 在这里编写Python代码\nprint("Hello, World!")');
+  const [code, setCode] = useState('# Code here\nprint("Hello, World!")');
   const [output, setOutput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -26,12 +26,16 @@ const CodeEditor = () => {
         body: JSON.stringify({ code }),
       });
 
-      const data = await response.json();
+      console.log('Raw response:', response); // 调试日志
 
-      if (response.ok) {
+      const data = await response.json();
+      console.log('Response data:', data);
+
+      if (data.error == null) {
         setOutput(data.output);
       } else {
         setError(data.error);
+        console.log('data.error:', data.error);
       }
     } catch (err) {
       setError('无法连接到服务器，请检查后端服务是否运行');
