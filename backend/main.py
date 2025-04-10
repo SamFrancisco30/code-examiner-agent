@@ -7,7 +7,6 @@ import os
 import uuid
 import logging
 import threading
-import psutil
 import time
 
 # 配置日志
