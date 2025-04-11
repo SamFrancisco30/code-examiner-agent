@@ -24,12 +24,15 @@
 - Node.js (v14+)
 - Python 3.10+
 - pnpm包管理器
+    - Windows 环境下推荐使用 npm 安装 `npm install -g pnpm`
+    - 在 VSCode 中使用终端时也许需要选择 Command Prompt：
+    ![pic1](imgs/image.png)
 
 ### 前端安装
 
 ```bash
 # 进入前端目录
-cd python-code-executor/frontend
+cd code-examiner-agent/frontend
 
 # 安装依赖
 pnpm install
@@ -42,7 +45,7 @@ pnpm run dev
 
 ```bash
 # 进入后端目录
-cd python-code-executor/backend
+cd code-examiner-agent/backend
 
 # 创建并激活虚拟环境
 python -m venv venv
