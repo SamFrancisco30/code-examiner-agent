@@ -56,7 +56,10 @@ source venv/bin/activate  # Linux/Mac
 # 或 venv\Scripts\activate  # Windows
 
 # 安装依赖
-pip install fastapi uvicorn pydantic python-multipart
+pip install fastapi uvicorn pydantic python-multipart redis pika python-dotenv
+
+# 运行redis和rabbitmq
+docker-compose up -d
 
 # 启动后端服务器
 python -m uvicorn main:app --host 0.0.0.0 --port 8000
