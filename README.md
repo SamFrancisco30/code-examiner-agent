@@ -41,6 +41,9 @@ pnpm install
 pnpm run dev
 ```
 
+#### 前端连接数据库
+在`code-examiner-agent/frontend`目录创建`.env`文件，格式参照`.env.example`，填入KEY
+
 ### 后端安装
 
 ```bash
