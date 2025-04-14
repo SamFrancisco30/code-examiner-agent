@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Editor from '@monaco-editor/react';
 import './CodeEditor.css';
 
-const CodeEditor = () => {
-  const [code, setCode] = useState('# Code here\nprint("Hello, World!")');
+interface CodeEditorProps {
+  initialCode?: string;
+}
+
+const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode = '# Code here\nprint("Hello, World!")' }) => {
+  const [code, setCode] = useState(initialCode);
   const [output, setOutput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleEditorChange = (value) => {
-    setCode(value);
+  const handleEditorChange = (value: string | undefined) => {
+    if (value !== undefined) {
+      setCode(value);
+    }
   };
 
   const executeCode = async () => {
@@ -26,16 +32,12 @@ const CodeEditor = () => {
         body: JSON.stringify({ code }),
       });
 
-      console.log('Raw response:', response); // 调试日志
-
       const data = await response.json();
-      console.log('Response data:', data);
 
       if (data.error == null) {
         setOutput(data.output);
       } else {
         setError(data.error);
-        console.log('data.error:', data.error);
       }
     } catch (err) {
       setError('无法连接到服务器，请检查后端服务是否运行');
@@ -47,11 +49,10 @@ const CodeEditor = () => {
   return (
     <div className="code-editor-container">
       <div className="editor-section">
-        <h2>Python 代码编辑器</h2>
         <Editor
-          height="400px"
+          height="50vh"
           defaultLanguage="python"
-          defaultValue={code}
+          value={code}
           onChange={handleEditorChange}
           theme="vs-dark"
           options={{
@@ -62,6 +63,8 @@ const CodeEditor = () => {
             automaticLayout: true,
           }}
         />
+      </div>
+      <div className="button-section">
         <button 
           className="execute-button" 
           onClick={executeCode}
@@ -71,11 +74,9 @@ const CodeEditor = () => {
         </button>
       </div>
       <div className="output-section">
-        <h2>执行结果</h2>
         <div className="output-container">
           {error ? (
             <div className="error-message">
-              <h3>错误信息:</h3>
               <pre>{error}</pre>
             </div>
           ) : (
