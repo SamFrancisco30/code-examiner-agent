@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import './CodeEditor.css';
 
@@ -11,11 +11,45 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode = '# Code here\npri
   const [output, setOutput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const currentLineRef = useRef<number>(1);
+  const lineStartTimeRef = useRef<number>(Date.now());
+  const previousCodeRef = useRef<string>(initialCode);
 
   const handleEditorChange = (value: string | undefined) => {
     if (value !== undefined) {
+      const previousCode = previousCodeRef.current;
+      if (previousCode !== value) {
+        console.log(`代码修改：从\n${previousCode}\n修改为\n${value}`);
+        previousCodeRef.current = value;
+      }
       setCode(value);
     }
+  };
+
+  const handleEditorDidMount = (editor: any) => {
+    // 监听键盘输入事件
+    editor.onKeyDown(() => {
+      const currentLine = editor.getPosition().lineNumber;
+      if (currentLine !== currentLineRef.current) {
+        const endTime = Date.now();
+        const timeSpent = endTime - lineStartTimeRef.current;
+        console.log(`在第 ${currentLineRef.current} 行花费了 ${timeSpent} 毫秒`);
+        currentLineRef.current = currentLine;
+        lineStartTimeRef.current = endTime;
+      }
+    });
+
+    // 监听光标位置变动事件
+    editor.onDidChangeCursorPosition(() => {
+      const currentLine = editor.getPosition().lineNumber;
+      if (currentLine !== currentLineRef.current) {
+        const endTime = Date.now();
+        const timeSpent = endTime - lineStartTimeRef.current;
+        console.log(`在第 ${currentLineRef.current} 行花费了 ${timeSpent} 毫秒`);
+        currentLineRef.current = currentLine;
+        lineStartTimeRef.current = endTime;
+      }
+    });
   };
 
   const executeCode = async () => {
@@ -54,6 +88,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode = '# Code here\npri
           defaultLanguage="python"
           value={code}
           onChange={handleEditorChange}
+          onMount={handleEditorDidMount}
           theme="vs-dark"
           options={{
             minimap: { enabled: false },
