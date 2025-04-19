@@ -68,6 +68,15 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ### MCP运行
 在`code-examiner-agent/backend`目录创建`.env`文件，格式参照`.env.example`，填入SUPABASE_KEY和OPENAI_API_KEY
 
+```bash
+# 进入后端目录
+cd code-examiner-agent/backend
+
+venv\Scripts\activate
+
+python ./mcp/supabase_server.py
+```
+
 
 
 ## 使用方法
