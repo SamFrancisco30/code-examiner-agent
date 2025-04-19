@@ -44,8 +44,8 @@ pnpm run dev
 #### 前端连接数据库
 在`code-examiner-agent/frontend`目录创建`.env`文件，格式参照`.env.example`，填入KEY
 
-### 后端安装
 
+### 后端安装
 ```bash
 # 进入后端目录
 cd code-examiner-agent/backend
@@ -64,6 +64,11 @@ docker-compose up -d
 # 启动后端服务器
 python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ```
+
+### MCP运行
+在`code-examiner-agent/backend`目录创建`.env`文件，格式参照`.env.example`，填入SUPABASE_KEY
+
+
 
 ## 使用方法
 
