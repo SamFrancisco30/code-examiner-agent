@@ -52,40 +52,36 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode = '# Code here\npri
       clearInterval(intervalRef.current);
     }
     intervalRef.current = setInterval(async () => {
-      if (previousCodeRef.current !== codeRef.current) {
-        const logMessages = processCodeDifferences(previousCodeRef.current, codeRef.current, captureInterval);
-        try {
-          // 发送日志数组到指定接口
-          const response = await fetch('http://localhost:8000/api/track_event', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              user_id: 'test_user', // 替换为实际的 user_id
-              question_id: 'test_question', // 替换为实际的 question_id
-              event_type: 'code_edit', // 替换为实际的 event_type
-              payload: logMessages
-            }),
-          });
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          if (data.status === 'ok') {
-            console.log('事件已成功接收，后端消息:', data.message);
-          } else {
-            console.warn('后端返回非成功状态:', data.message);
-          }
-        } catch (err) {
-          console.error('发送日志到 API 时出错:', err);
+    const logMessages = processCodeDifferences(previousCodeRef.current, codeRef.current, captureInterval);
+      try {
+        // 发送日志数组到指定接口
+        const response = await fetch('http://localhost:8000/api/track_event', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: 'test_user', // 替换为实际的 user_id
+            question_id: 'test_question', // 替换为实际的 question_id
+            event_type: 'code_edit', // 替换为实际的 event_type
+            payload: logMessages
+          }),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        console.log('代码变化记录：', logMessages);
-        previousCodeRef.current = codeRef.current;
-      } else {
-        console.log('代码未发生变化');
+
+        const data = await response.json();
+        if (data.status === 'ok') {
+          console.log('事件已成功接收，后端消息:', data.message);
+        } else {
+          console.warn('后端返回非成功状态:', data.message);
+        }
+      } catch (err) {
+        console.error('发送日志到 API 时出错:', err);
       }
+      console.log('代码变化记录：', logMessages);
+      previousCodeRef.current = codeRef.current;
     }, captureInterval);
   };
 
