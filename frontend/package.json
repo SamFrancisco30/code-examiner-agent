@@ -44,6 +44,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
     "date-fns": "^4.1.0",
+    "diff": "^7.0.0",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.364.0",
@@ -62,6 +63,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
+    "@types/diff": "^7.0.2",
     "@types/node": "^22.14.1",
     "@types/react": "^18.3.20",
     "@types/react-dom": "^18.3.6",

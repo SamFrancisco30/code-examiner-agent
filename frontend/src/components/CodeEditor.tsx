@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import './CodeEditor.css';
+// 导入 diff 库
+import * as diff from 'diff';
 
 interface CodeEditorProps {
   initialCode?: string;
@@ -11,46 +13,63 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode = '# Code here\npri
   const [output, setOutput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const currentLineRef = useRef<number>(1);
-  const lineStartTimeRef = useRef<number>(Date.now());
   const previousCodeRef = useRef<string>(initialCode);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const codeRef = useRef<string>(initialCode);
 
   const handleEditorChange = (value: string | undefined) => {
     if (value !== undefined) {
-      const previousCode = previousCodeRef.current;
-      if (previousCode !== value) {
-        console.log(`代码修改：从\n${previousCode}\n修改为\n${value}`);
-        previousCodeRef.current = value;
-      }
       setCode(value);
+      codeRef.current = value;
     }
   };
 
-  const handleEditorDidMount = (editor: any) => {
-    // 监听键盘输入事件
-    editor.onKeyDown(() => {
-      const currentLine = editor.getPosition().lineNumber;
-      if (currentLine !== currentLineRef.current) {
-        const endTime = Date.now();
-        const timeSpent = endTime - lineStartTimeRef.current;
-        console.log(`在第 ${currentLineRef.current} 行花费了 ${timeSpent} 毫秒`);
-        currentLineRef.current = currentLine;
-        lineStartTimeRef.current = endTime;
-      }
-    });
+  /**
+   * 处理代码差异并生成规范化输出
+   * @param previousCode - 之前的代码
+   * @param currentCode - 当前的代码
+   * @param interval - 代码捕捉间隔，单位为毫秒
+   * @returns 包含标准化差异信息的对象
+   */
+  const processCodeDifferences = (previousCode: string, currentCode: string, interval: number) => {
+    const differences = diff.diffLines(previousCode, currentCode);
+    const elapsedSeconds = interval / 1000;
 
-    // 监听光标位置变动事件
-    editor.onDidChangeCursorPosition(() => {
-      const currentLine = editor.getPosition().lineNumber;
-      if (currentLine !== currentLineRef.current) {
-        const endTime = Date.now();
-        const timeSpent = endTime - lineStartTimeRef.current;
-        console.log(`在第 ${currentLineRef.current} 行花费了 ${timeSpent} 毫秒`);
-        currentLineRef.current = currentLine;
-        lineStartTimeRef.current = endTime;
-      }
-    });
+    return {
+      timestamp: new Date().toISOString(),
+      elapsedSeconds,
+      changes: differences.map(part => ({
+        type: part.added ? 'added' : part.removed ? 'removed' : 'unchanged',
+        value: part.value,
+        count: part.count
+      }))
+    };
   };
+
+  const handleEditorDidMount = (editor: any) => {
+    const captureInterval = 30000; 
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    intervalRef.current = setInterval(() => {
+      if (previousCodeRef.current !== codeRef.current) {
+        const logMessages = processCodeDifferences(previousCodeRef.current, codeRef.current, captureInterval);
+        // 修改日志输出方式
+        console.log('代码变化记录：', logMessages);
+        previousCodeRef.current = codeRef.current;
+      } else {
+        console.log('代码未发生变化');
+      }
+    }, captureInterval);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const executeCode = async () => {
     setIsLoading(true);
