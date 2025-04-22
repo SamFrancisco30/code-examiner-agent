@@ -16,15 +16,30 @@ async def run_agent():
                 "command": "python",
                 "args": ["D:/code-examiner-agent/backend/mcp/supabase_server.py"],
                 "transport": "stdio",
-            }
+            },
+            "redis": {
+                "command": "C:/Users/21135/.local/bin/uv.exe",
+                "args": ["--directory",
+                        "D:/mcp-redis",
+                        "run",
+                        "src/main.py", 
+                        ],
+                "env": {
+                    "REDIS_HOST": "localhost",
+                    "REDIS_PORT": "6379"
+                },
+                "transport": "stdio"
+            },
         }
     ) as client:
         agent = create_react_agent(model, client.get_tools())
-        agent_response = await agent.ainvoke({"messages": "In the 'questions' table, what is the 'description' of the question with 'title' 'Coin Exchange'?"})
+        agent_response = await agent.ainvoke({"messages": "In the Redis database, use 'lrange <key> 0 -1' to get the value of key behavior:u1:q1 what is the value?"})
         return agent_response
     
 
 # Run the async function
 if __name__ == "__main__":
-    result = asyncio.run(run_agent())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    result = loop.run_until_complete(run_agent())
     print(result)
