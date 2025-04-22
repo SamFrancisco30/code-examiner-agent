@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import './CodeEditor.css';
+// 导入 diff 库
+import * as diff from 'diff';
 
 interface CodeEditorProps {
   initialCode?: string;
@@ -11,12 +13,85 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode = '# Code here\npri
   const [output, setOutput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const previousCodeRef = useRef<string>(initialCode);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const codeRef = useRef<string>(initialCode);
 
   const handleEditorChange = (value: string | undefined) => {
     if (value !== undefined) {
       setCode(value);
+      codeRef.current = value;
     }
   };
+
+  /**
+   * 处理代码差异并生成规范化输出
+   * @param previousCode - 之前的代码
+   * @param currentCode - 当前的代码
+   * @param interval - 代码捕捉间隔，单位为毫秒
+   * @returns 包含标准化差异信息的对象
+   */
+  const processCodeDifferences = (previousCode: string, currentCode: string, interval: number) => {
+    const differences = diff.diffLines(previousCode, currentCode);
+    const elapsedSeconds = interval / 1000;
+
+    return {
+      timestamp: new Date().toISOString(),
+      elapsedSeconds,
+      changes: differences.map(part => ({
+        type: part.added ? 'added' : part.removed ? 'removed' : 'unchanged',
+        value: part.value,
+        count: part.count
+      }))
+    };
+  };
+
+  const handleEditorDidMount = (editor: any) => {
+    const captureInterval = 30000; 
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    intervalRef.current = setInterval(async () => {
+    const logMessages = processCodeDifferences(previousCodeRef.current, codeRef.current, captureInterval);
+      try {
+        // 发送日志数组到指定接口
+        const response = await fetch('http://localhost:8000/api/track_event', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            user_id: 'test_user', // 替换为实际的 user_id
+            question_id: 'test_question', // 替换为实际的 question_id
+            event_type: 'code_edit', // 替换为实际的 event_type
+            payload: logMessages
+          }),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.status === 'ok') {
+          console.log('事件已成功接收，后端消息:', data.message);
+        } else {
+          console.warn('后端返回非成功状态:', data.message);
+        }
+      } catch (err) {
+        console.error('发送日志到 API 时出错:', err);
+      }
+      console.log('代码变化记录：', logMessages);
+      previousCodeRef.current = codeRef.current;
+    }, captureInterval);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const executeCode = async () => {
     setIsLoading(true);
@@ -54,6 +129,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ initialCode = '# Code here\npri
           defaultLanguage="python"
           value={code}
           onChange={handleEditorChange}
+          onMount={handleEditorDidMount}
           theme="vs-dark"
           options={{
             minimap: { enabled: false },
