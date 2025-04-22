@@ -1,12 +1,47 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import './App.css';
 import CodeEditor from './components/CodeEditor';
 import Question from './components/Question';
+import { supabase } from './components/Supabase';
+
+interface Question {
+  id: number;
+  title: string;
+  description: string;
+  example_input: string;
+  example_output: string;
+}
 
 function App() {
   const [questionPanelWidth, setQuestionPanelWidth] = useState(50); // Percentage
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
   const resizeHandleRef = useRef<HTMLDivElement>(null);
+
+  // Fetch questions from Supabase
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        const { data, error } = await supabase.from('questions').select('*');
+        if (error) {
+          throw new Error(error.message);
+        }
+        setQuestions(data);
+        if (data.length > 0) {
+          setCurrentQuestion(data[0]);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, []);
 
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -18,7 +53,6 @@ function App() {
     if (mainContentRef.current) {
       const mainWidth = mainContentRef.current.offsetWidth;
       const newWidth = (e.clientX - mainContentRef.current.offsetLeft) / mainWidth * 100;
-      // Constrain width between 20% and 80%
       setQuestionPanelWidth(Math.max(20, Math.min(80, newWidth)));
     }
   };
@@ -28,6 +62,9 @@ function App() {
     document.removeEventListener('mouseup', stopResizing);
   };
 
+  if (loading) return <div>Loading questions...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <div className="App">
       <header className="App-header">
@@ -35,7 +72,11 @@ function App() {
       </header>
       <main className="main-content" ref={mainContentRef}>
         <div className="questions-panel" style={{ flex: `0 0 ${questionPanelWidth}%` }}>
-          <Question />
+          <Question
+            questions={questions}
+            currentQuestion={currentQuestion}
+            setCurrentQuestion={setCurrentQuestion}
+          />
         </div>
         <div
           className="resize-handle"
@@ -43,7 +84,7 @@ function App() {
           onMouseDown={startResizing}
         />
         <div className="editor-panel">
-          <CodeEditor />
+          <CodeEditor currentQuestion={currentQuestion} />
         </div>
       </main>
       <footer>
