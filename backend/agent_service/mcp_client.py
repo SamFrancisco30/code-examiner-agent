@@ -33,7 +33,7 @@ async def run_agent():
         }
     ) as client:
         agent = create_react_agent(model, client.get_tools())
-        agent_response = await agent.ainvoke({"messages": "In the Redis database, use 'lrange <key> 0 -1' to get the value of key behavior:u1:q1 what is the value?"})
+        agent_response = await agent.ainvoke({"messages": "In the Redis database, use 'lrange <key> 0 -1' to get the value of key behavior:u1:q2 what is the value?"})
         return agent_response
     
 
