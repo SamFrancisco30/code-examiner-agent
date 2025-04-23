@@ -72,7 +72,8 @@ python -m uvicorn main:app --host 0.0.0.0 --port 8000
 # 进入后端目录
 cd code-examiner-agent/backend
 
-venv\Scripts\activate
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate  # Windows
 
 python ./mcp/supabase_server.py
 ```
