@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 from pydantic import BaseModel
-from data_service.redis_utils import redis_client
-from data_service.message_queue import send_to_queue
+from redis_utils import redis_client
+from message_queue import send_to_queue
 import json
 import uuid
 
