@@ -4,7 +4,10 @@ from click import prompt
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.prebuilt import create_react_agent
 from langchain_openai import ChatOpenAI
+from openai.types.responses import ResponseTextDeltaEvent
 import asyncio
+from agents import Runner
+from collections import deque
 from dotenv import load_dotenv
 from mcp import StdioServerParameters
 
@@ -44,6 +47,21 @@ async def create_agent():
                 },
                 "transport": "stdio"
             },
+            "rabbitmq": {
+                "command": "uv",
+                "args": [
+                    "--directory",
+                    "D:/AI/mcp-server-rabbitmq",
+                    "run",
+                    "mcp-server-rabbitmq"
+                ],
+                "env": {
+                    "RABBIT_HOST": "localhost",
+                    "RABBIT_PORT": "15672",
+                    'RABBIT_USERNAME': "guest",
+                    'RABBIT_PASSWORD': "guest",
+                },
+            }
         }
     ) as client:
         agent = create_react_agent(model, client.get_tools())
@@ -52,15 +70,30 @@ async def create_agent():
 
 
 async def run_agent(agent):
-    while True:
-        prompts = input()
-        if prompts == "exit":
-            break
-        print('get prompt, starting to process')
-        # agent_response = await agent.ainvoke({"messages": "In the Redis database, use 'lrange <key> 0 -1' to get the value of key behavior:u1:q2 what is the value?"})
-        agent_response = await agent.ainvoke({"messages": prompts})
+    print("🔧 Redis Assistant CLI — Ask me something (type 'exit' to quit):\n")
+    conversation_history = deque(maxlen=30)
 
-        yield agent_response
+    while True:
+        q = input("❓> ")
+        if q.strip().lower() in {"exit", "quit"}:
+            break
+
+        if (len(q.strip()) > 0):
+            # Format the context into a single string
+            history = ""
+            for turn in conversation_history:
+                prefix = "User" if turn["role"] == "user" else "Assistant"
+                history += f"{prefix}: {turn['content']}\n"
+
+            context = f"Conversation history:/n{history.strip()} /n New question:/n{q.strip()}"
+            result = await agent.ainvoke({"messages": context})
+
+            response_text = result['messages'][-1].content
+            yield response_text
+
+            # Add the user's message and the assistant's reply in history
+            conversation_history.append({"role": "user", "content": q})
+            conversation_history.append({"role": "assistant", "content": response_text})
 
 
 # Run the async function
