@@ -10,6 +10,8 @@ from agents import Runner
 from collections import deque
 from dotenv import load_dotenv
 from mcp import StdioServerParameters
+import configparser
+import os
 
 # Load environment variables
 load_dotenv()
@@ -19,49 +21,32 @@ load_dotenv()
 # os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 model = ChatOpenAI(model="gpt-4o")
 
-server_params = StdioServerParameters(
-    command="python",
-    # Make sure to update to the full absolute path to your math_server.py file
-    args=["D:/code-examiner-agent/backend/mcp/supabase_server.py"],
-)
+def read_config():
+    config = configparser.ConfigParser()
+    # 获取当前脚本所在目录
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_file_path = os.path.join(script_dir, 'config.ini')
+    config.read(config_file_path)
+    return config
 
-async def create_agent():
+async def run_agent():
+    config = read_config()
     async with MultiServerMCPClient(
         {
             "supabase": {
-                "command": "python",
-                # Make sure to update to the full absolute path to your math_server.py file
-                "args": ["D:/AI/code-examiner-agent/backend/mcp/supabase_server.py"],
-                "transport": "stdio",
+                "command": config.get('supabase', 'command'),
+                "args": config.get('supabase', 'args').split(','),
+                "transport": config.get('supabase', 'transport'),
             },
             "redis": {
-                "command": "C:/Users/1/.local/bin/uv.exe",
-                "args": ["--directory",
-                        "D:/AI/mcp-redis",
-                        "run",
-                        "src/main.py",
-                        ],
+                "command": config.get('redis', 'command'),
+                "args": config.get('redis', 'args').split(','),
                 "env": {
-                    "REDIS_HOST": "localhost",
-                    "REDIS_PORT": "6379"
+                    "REDIS_HOST": config.get('redis', 'env_redis_host'),
+                    "REDIS_PORT": config.get('redis', 'env_redis_port')
                 },
-                "transport": "stdio"
+                "transport": config.get('redis', 'transport')
             },
-            "rabbitmq": {
-                "command": "uv",
-                "args": [
-                    "--directory",
-                    "D:/AI/mcp-server-rabbitmq",
-                    "run",
-                    "mcp-server-rabbitmq"
-                ],
-                "env": {
-                    "RABBIT_HOST": "localhost",
-                    "RABBIT_PORT": "15672",
-                    'RABBIT_USERNAME': "guest",
-                    'RABBIT_PASSWORD': "guest",
-                },
-            }
         }
     ) as client:
         agent = create_react_agent(model, client.get_tools())
