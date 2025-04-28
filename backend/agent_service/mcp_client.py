@@ -1,4 +1,5 @@
 import os
+from http.client import responses
 
 from click import prompt
 from langchain_mcp_adapters.client import MultiServerMCPClient
@@ -12,6 +13,9 @@ from dotenv import load_dotenv
 from mcp import StdioServerParameters
 import configparser
 import os
+
+from backend.tool.conversation import Conversation
+from backend.tool.listener import create_listener
 
 # Load environment variables
 load_dotenv()
@@ -29,63 +33,46 @@ def read_config():
     config.read(config_file_path)
     return config
 
-async def run_agent():
+def create_agent():
     config = read_config()
-    async with MultiServerMCPClient(
+    client = MultiServerMCPClient(
         {
             "supabase": {
                 "command": config.get('supabase', 'command'),
                 "args": config.get('supabase', 'args').split(','),
                 "transport": config.get('supabase', 'transport'),
             },
-            "redis": {
-                "command": config.get('redis', 'command'),
-                "args": config.get('redis', 'args').split(','),
-                "env": {
-                    "REDIS_HOST": config.get('redis', 'env_redis_host'),
-                    "REDIS_PORT": config.get('redis', 'env_redis_port')
-                },
-                "transport": config.get('redis', 'transport')
-            },
+            # "redis": {
+            #     "command": config.get('redis', 'command'),
+            #     "args": config.get('redis', 'args').split(','),
+            #     "env": {
+            #         "REDIS_HOST": config.get('redis', 'env_redis_host'),
+            #         "REDIS_PORT": config.get('redis', 'env_redis_port')
+            #     },
+            #     "transport": config.get('redis', 'transport')
+            # },
         }
-    ) as client:
-        agent = create_react_agent(model, client.get_tools())
-        async for agent_response in run_agent(agent):  # yield 出 B 的每一轮输出
-            yield agent_response
+    )
+    agent = create_react_agent(model, client.get_tools())
+    return agent
 
 
-async def run_agent(agent):
-    print("🔧 Redis Assistant CLI — Ask me something (type 'exit' to quit):\n")
-    conversation_history = deque(maxlen=30)
+async def run_agent():
+    agent = create_agent()
+    conversation = Conversation()
+    listener = create_listener('ai_tasks', True)
 
     while True:
-        q = input("❓> ")
-        if q.strip().lower() in {"exit", "quit"}:
-            break
-
-        if (len(q.strip()) > 0):
-            # Format the context into a single string
-            history = ""
-            for turn in conversation_history:
-                prefix = "User" if turn["role"] == "user" else "Assistant"
-                history += f"{prefix}: {turn['content']}\n"
-
-            context = f"Conversation history:/n{history.strip()} /n New question:/n{q.strip()}"
-            result = await agent.ainvoke({"messages": context})
-
-            response_text = result['messages'][-1].content
-            yield response_text
-
-            # Add the user's message and the assistant's reply in history
-            conversation_history.append({"role": "user", "content": q})
-            conversation_history.append({"role": "assistant", "content": response_text})
-
+        context = listener.get()
+        context = conversation.get(context)
+        responses = await agent.ainvoke(context)
+        yield responses
 
 # Run the async function
 if __name__ == "__main__":
     # Use asyncio.run() to run the top-level async function
     async def main():
-        async for result in create_agent():  # We use async for to consume the async generator
+        async for result in run_agent():  # We use async for to consume the async generator
             print(result['messages'][-1].content)
 
 
