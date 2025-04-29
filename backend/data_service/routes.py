@@ -18,9 +18,6 @@ class BehaviorEvent(BaseModel):
 
 @router.post("/track_event")
 async def track_event(event: BehaviorEvent):
-    # key = f"behavior:{event.user_id}:{event.question_id}"
-    # event_id = str(uuid.uuid4())
-
     # 直接推送到 RabbitMQ
     message = json.dumps({
         "user_id": event.user_id,

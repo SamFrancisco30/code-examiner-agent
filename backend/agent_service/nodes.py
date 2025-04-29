@@ -4,9 +4,12 @@ from llm_utils import azure_llm
 def init_node(state: dict):
     """初始化必要字段"""
     return {
+        "user_id": state.get("user_id", "test_user"),
+        "question_id": state.get("question_id", ""),
+        "event_type": state.get("event_type", "unknown"),
         "code_diff": state.get("code_diff", []),
-        "problem_name": state.get("problem_name", ""),
-        "problem_desc": state.get("problem_desc", ""),
+        "question_name": state.get("question_name", ""),
+        "question_desc": state.get("question_desc", ""),
         "example_input": state.get("example_input", ""),
         "example_output": state.get("example_output", ""),
         "elapsed_time": state.get("elapsed_time", 0)
@@ -24,10 +27,10 @@ def tech_analysis_node(state: dict):
     现在请分析如下代码演进：
     
     [题目]
-    {state.get('problem_name', '')}
+    {state.get('question_name', '')}
 
     [题目要求]
-    {state.get('problem_desc', '')}
+    {state.get('question_desc', '')}
 
     [示例输入]
     {state.get('example_input', '')}
