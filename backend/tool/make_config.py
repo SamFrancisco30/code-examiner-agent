@@ -24,3 +24,12 @@ def make_config():
                 "transport": config.get('redis', 'transport')
             },
         }
+
+
+def read_config():
+    config = configparser.ConfigParser()
+    # 获取当前脚本所在目录
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    config_file_path = os.path.join(script_dir, 'config.ini')
+    config.read(config_file_path)
+    return config
