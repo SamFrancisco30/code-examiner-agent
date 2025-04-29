@@ -14,13 +14,13 @@ def make_config():
                 "args": config.get('supabase', 'args').split(','),
                 "transport": config.get('supabase', 'transport'),
             },
-            # "redis": {
-            #     "command": config.get('redis', 'command'),
-            #     "args": config.get('redis', 'args').split(','),
-            #     "env": {
-            #         "REDIS_HOST": config.get('redis', 'env_redis_host'),
-            #         "REDIS_PORT": config.get('redis', 'env_redis_port')
-            #     },
-            #     "transport": config.get('redis', 'transport')
-            # },
+            "redis": {
+                "command": config.get('redis', 'command'),
+                "args": config.get('redis', 'args').split(','),
+                "env": {
+                    "REDIS_HOST": config.get('redis', 'env_redis_host'),
+                    "REDIS_PORT": config.get('redis', 'env_redis_port')
+                },
+                "transport": config.get('redis', 'transport')
+            },
         }
