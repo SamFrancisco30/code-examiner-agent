@@ -6,14 +6,8 @@ from agent_service.redis_node import start_redis_listener
 from data_service.rabbitmq import publish
 from tool.listener import create_listener
 
-if __name__ == "__main__":
-    event_datas = [
-        {
-            "user_id": "123456",
-            "question_id": "123456",
-            "event_type": "start",
-        },
-        {
+
+submit_data = {
             "user_id": "123456",
             "question_id": "123456",
             "event_type": "edit",
@@ -60,6 +54,15 @@ if __name__ == "__main__":
                 }
             ]
         },
+
+if __name__ == "__main__":
+    event_datas = [
+        {
+            "user_id": "123456",
+            "question_id": "123456",
+            "event_type": "start",
+        },
+        submit_data,
         {
             "user_id": "123456",
             "question_id": "123456",

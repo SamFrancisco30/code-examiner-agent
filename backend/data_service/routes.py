@@ -6,8 +6,8 @@ import uuid
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from backend.agent_service.redis_node import start_redis_listener
-from rabbitmq import publish
+from agent_service.redis_node import start_redis_listener
+from data_service.rabbitmq import publish
 
 router = APIRouter()
 start_redis_listener()
