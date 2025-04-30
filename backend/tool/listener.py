@@ -41,5 +41,4 @@ def create_listener(queue_name=None, input_able=False):
 
 # 启动队列监听和 LLM 消费
 if __name__ == "__main__":
-
     pass

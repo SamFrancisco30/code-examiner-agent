@@ -16,12 +16,10 @@ def start_listener(call_back, queue_name: str = "ai_tasks"):
         channel = connection.channel()
 
         # Declare the queue to make sure it exists
-        channel.queue_declare(queue=queue_name, durable=True)
+        channel.queue_declare(queue=queue_name)
 
         # Set QoS to control how many messages are prefetched
         channel.basic_qos(prefetch_count=1)
-
-        print(f" [*] Waiting for messages in {queue_name}. To exit press CTRL+C")
 
         def process_message(ch, method, properties, body):
             try:
