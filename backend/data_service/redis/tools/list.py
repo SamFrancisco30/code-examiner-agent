@@ -1,6 +1,6 @@
-from common.connection import RedisConnectionManager
+from backend.data_service.redis.common.connection import RedisConnectionManager
 from redis.exceptions import RedisError
-from common.server import mcp
+from backend.data_service.redis.common.server import mcp
 
 @mcp.tool()
 async def lpush(name: str, value: str, expire: int = None) -> str:
@@ -32,7 +32,7 @@ async def lpop(name: str) -> str:
     try:
         r = RedisConnectionManager.get_connection()
         value = r.lpop(name)
-        return value.decode() if value else f"List '{name}' is empty or does not exist."
+        return value if value else f"List '{name}' is empty or does not exist."
     except RedisError as e:
         return f"Error popping value from list '{name}': {str(e)}"
 
@@ -42,7 +42,7 @@ async def rpop(name: str) -> str:
     try:
         r = RedisConnectionManager.get_connection()
         value = r.rpop(name)
-        return value.decode() if value else f"List '{name}' is empty or does not exist."
+        return value if value else f"List '{name}' is empty or does not exist."
     except RedisError as e:
         return f"Error popping value from list '{name}': {str(e)}"
 

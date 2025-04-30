@@ -24,8 +24,14 @@ def start_listener(call_back, queue_name: str = "ai_tasks"):
         def process_message(ch, method, properties, body):
             try:
                 # Parse the JSON message
-                message = json.loads(body)
-
+                if isinstance(body, bytes):
+                    message = body.decode('utf-8')
+                elif isinstance(body, dict):
+                    message = json.loads(body)
+                elif isinstance(body, str):
+                    message = body
+                else:
+                    raise ValueError("Unsupported message type")
                 call_back(message)
 
                 # Acknowledge the message (remove from queue)
@@ -74,5 +80,9 @@ def publish(message='hello world', queue_name: str ='ai_tasks'):
     connection.close()
 
 
+def print_1(x):
+    print(x)
+
 if __name__ == "__main__":
-    start_listener()
+    # publish('hello world', 'init_queue')
+    start_listener(print_1, 'init_queue')

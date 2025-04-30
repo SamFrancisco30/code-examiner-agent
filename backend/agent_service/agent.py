@@ -1,4 +1,6 @@
 from langgraph.graph import StateGraph, END
+
+from backend.tool.listener import create_listener
 from nodes import init_node, tech_analysis_node, teaching_feedback_node
 
 # 构建Agent工作流
@@ -107,4 +109,9 @@ if __name__ == "__main__":
         ]
     }
 
-    result = agent.invoke(test_state_submit)
+    listener = create_listener(queue_name="hello_world", input_able=False)
+
+    while True:
+        message = listener.get()
+        result = agent.invoke(test_state_submit)
+

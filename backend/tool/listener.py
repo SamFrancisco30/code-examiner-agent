@@ -17,7 +17,10 @@ def create_listener(queue_name=None, input_able=False):
         """
         消费消息并将其放入消息队列
         """
-        start_listener(lambda x: message_queue.put(x), queue_name)
+        start_listener(put, queue_name)
+
+    def put(x):
+        message_queue.put(x)
 
     # 启动消息队列监听线程
     listener_thread = threading.Thread(target=listen_to_queue)

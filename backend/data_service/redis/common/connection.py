@@ -1,12 +1,12 @@
 import sys
-from version import __version__
+from backend.data_service.redis.version import __version__
 import redis
 from redis import Redis
 from redis.cluster import RedisCluster
 from typing import Optional, Type, Union
-from common.config import REDIS_CFG
+from backend.data_service.redis.common.config import REDIS_CFG
 
-from common.config import generate_redis_uri
+from backend.data_service.redis.common.config import generate_redis_uri
 
 
 class RedisConnectionManager:
