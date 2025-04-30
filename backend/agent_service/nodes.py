@@ -53,12 +53,7 @@ def tech_analysis_node(state: dict):
         temp=0.2
     )
 
-    print("tech_analysis_node response: ", response)
-    
-    try:
-        return {"llm_tech_analysis": json.loads(response) if response else {}}
-    except json.JSONDecodeError:
-        return {"llm_tech_analysis": {"error": "分析结果解析失败"}}
+    return response
 
 
 def teaching_feedback_node(state: dict):
@@ -69,9 +64,8 @@ def teaching_feedback_node(state: dict):
 
     1. 用户编程薄弱环节建议（用户在进行某些改动时花费时间很多）
     2. 算法优化（时间/空间复杂度变化）
-    3. 可维护性（代码可读性、文档完善度）
+    3. 可维护性（代码可读性）
     4. 潜在风险（错误处理、边界条件）
-    5. 架构改进（模块化、设计模式应用）
 
     [要求]
     - 使用亲切的中文口吻
@@ -79,9 +73,9 @@ def teaching_feedback_node(state: dict):
 
     [输出JSON格式]
     {{
-        "progress": [str],
+        "optimization": [str],
         "suggestions": [str],
-        "summary": str
+        "summary": str,
     }}
 
     [题目]
@@ -106,28 +100,4 @@ def teaching_feedback_node(state: dict):
         temp=0.5
     )
     
-    try:
-        feedback_data = json.loads(response) if response else {}
-        return {"feedback": format_feedback(feedback_data)}
-    except:
-        return {"feedback": "反馈生成失败"}
-
-
-
-def format_feedback(data: dict) -> str:
-    progress = "\n".join([f"✅ {item}" for item in data.get("progress", [])])
-    suggestions = "\n".join([f"💡 {item}" for item in data.get("suggestions", [])])
-    summary = data.get("summary", "")
-
-    print("feedback generated. progress:", progress)
-    
-    return f"""
-🌟 进展亮点：
-{progress}
-
-🚀 优化建议：
-{suggestions}
-
-📝 总结：
-{summary}
-"""
+    return response

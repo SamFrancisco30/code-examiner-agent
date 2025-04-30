@@ -10,13 +10,10 @@ builder.add_node("teaching_feedback", teaching_feedback_node)
 # 定义条件函数
 def router(state: dict):
     if state.get("event_type") == "edit":
-        print("edit")
         return "edit"
     elif state.get("event_type") == "submit":
-        print("submit")
         return "submit"
     else:
-        print("unknown")
         return "unknown"
 
 # 连接Agent工作流
@@ -107,4 +104,5 @@ if __name__ == "__main__":
         ]
     }
 
-    result = agent.invoke(test_state_submit)
+    result = agent.invoke(test_state_edit)
+    print(result)
