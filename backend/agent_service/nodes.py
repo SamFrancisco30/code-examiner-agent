@@ -1,5 +1,5 @@
 import json
-from llm import azure_llm
+from agent_service.llm import azure_llm
 
 def init_node(state: dict):
     """初始化必要字段"""

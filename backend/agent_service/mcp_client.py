@@ -7,10 +7,10 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from backend.data_service.rabbitmq import publish
-from backend.tool.conversation import Conversation
-from backend.tool.listener import create_listener
-from backend.tool.make_config import make_config, read_config
+from data_service.rabbitmq import publish
+from tool.conversation import Conversation
+from tool.listener import create_listener
+from tool.make_config import make_config, read_config
 
 # Load environment variables
 load_dotenv()

@@ -1,7 +1,5 @@
+from agent_service.nodes import init_node, tech_analysis_node, teaching_feedback_node
 from langgraph.graph import StateGraph, END
-
-from backend.tool.listener import create_listener
-from nodes import init_node, tech_analysis_node, teaching_feedback_node
 
 # 构建Agent工作流
 builder = StateGraph(dict)
@@ -42,6 +40,7 @@ agent = builder.compile()
 # 使用示例
 if __name__ == "__main__":
     print("test begin")
+
     test_state_edit = {
         "user_id": "123456",
         "question_id": "123456",
@@ -60,6 +59,8 @@ if __name__ == "__main__":
             "{type: \"unchanged\", value: \"}↵↵print(solution([1, 2, 5], 11))\", count: 3}"
         ]
     }
+
+    agent.invoke(test_state_edit)
 
     test_state_submit = {
         "user_id": "123456",
@@ -109,9 +110,5 @@ if __name__ == "__main__":
         ]
     }
 
-    listener = create_listener(queue_name="hello_world", input_able=False)
-
-    while True:
-        message = listener.get()
-        result = agent.invoke(test_state_submit)
+    agent.invoke(test_state_submit)
 

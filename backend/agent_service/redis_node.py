@@ -6,12 +6,12 @@ import time
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
 
-from backend.data_service.rabbitmq import publish
-from backend.data_service.redis_service.tools import list as redis_list
-from backend.tool.listener import create_listener
+from data_service.rabbitmq import publish
+from data_service.redis_service.tools import list as redis_list
+from tool.listener import create_listener
 
 
-# from backend.agent_service.mcp_client import create_client, Agent
+# from agent_service.mcp_client import create_client, Agent
 
 # 定义接收事件的结构
 class BehaviorEvent(BaseModel):
@@ -74,6 +74,11 @@ def redis_load_node(state):
         responses = await redis_list.lrange(key, 0, -1)
         return responses
     results = asyncio.run(run())
+    for i, result in enumerate(results):
+        result = json.loads(result)
+        result['event_type'] = 'submit'
+        result = json.dumps(result)
+        results[i] = result
     for result in results:
         publish(result, 'llm_prompt')
     state["result"] = "提交操作完成"

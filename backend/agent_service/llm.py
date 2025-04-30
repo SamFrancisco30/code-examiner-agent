@@ -2,7 +2,7 @@ import os
 import configparser
 from openai import AzureOpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
-from backend.tool.make_config import make_config
+from tool.make_config import make_config
 
 # 读取配置文件
 config = make_config()

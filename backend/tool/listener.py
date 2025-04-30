@@ -3,7 +3,7 @@ import threading
 import queue
 import sys
 import time
-from ..data_service.rabbitmq import start_listener
+from data_service.rabbitmq import start_listener
 
 
 # 创建一个线程安全的队列，用于存放 RabbitMQ 消息
