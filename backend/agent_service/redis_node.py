@@ -7,7 +7,7 @@ from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
 
 from backend.data_service.rabbitmq import publish
-from backend.data_service.redis.tools import list as redis_list
+from backend.data_service.redis_service.tools import list as redis_list
 from backend.tool.listener import create_listener
 
 
@@ -75,7 +75,7 @@ def redis_load_node(state):
         return responses
     results = asyncio.run(run())
     for result in results:
-        publish(result, 'hello_world')
+        publish(result, 'llm_prompt')
     state["result"] = "提交操作完成"
     return state
 
