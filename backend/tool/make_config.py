@@ -23,6 +23,13 @@ def make_config():
                 },
                 "transport": config.get('redis', 'transport')
             },
+            'azure': {
+                "endpoint": config.get('azure', 'endpoint'),
+                "model_name": config.get('azure', 'model_name'),
+                "deployment": config.get('azure', 'deployment'),
+                "subscription_key": config.get('azure', 'subscription_key'),
+                "api_version": config.get('azure', 'api_version')
+            }
         }
 
 

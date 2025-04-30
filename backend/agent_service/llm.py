@@ -2,20 +2,19 @@ import os
 import configparser
 from openai import AzureOpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
-
+from backend.tool.make_config import make_config
 
 # 读取配置文件
-config = configparser.ConfigParser()
-script_dir = os.path.dirname(os.path.abspath(__file__))
-config_file_path = os.path.join(script_dir, 'config.ini')
-config.read(config_file_path)
+config = make_config()
+
 
 # 从配置文件中获取 Azure 配置
-endpoint = config.get('azure', 'endpoint')
-model_name = config.get('azure', 'model_name')
-deployment = config.get('azure', 'deployment')
-subscription_key = config.get('azure', 'subscription_key')
-api_version = config.get('azure', 'api_version')
+azure_config = config.get('azure')
+endpoint = azure_config.get('endpoint')
+model_name = azure_config.get('model_name')
+deployment = azure_config.get('deployment')
+subscription_key = azure_config.get('subscription_key')
+api_version = azure_config.get('api_version')
 
 client = AzureOpenAI(
     api_version=api_version,
