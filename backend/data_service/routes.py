@@ -1,13 +1,16 @@
 # backend/behavior_service/routes.py
 
-from fastapi import APIRouter
-from pydantic import BaseModel
-from data_service.redis_utils import redis_client
-from data_service.message_queue import send_to_queue
 import json
 import uuid
 
+from fastapi import APIRouter
+from pydantic import BaseModel
+
+from agent_service.redis_node import start_redis_listener
+from data_service.rabbitmq import publish
+
 router = APIRouter()
+start_redis_listener()
 
 # 接收事件的结构
 class BehaviorEvent(BaseModel):
@@ -18,13 +21,13 @@ class BehaviorEvent(BaseModel):
 
 @router.post("/track_event")
 async def track_event(event: BehaviorEvent):
-    # 直接推送到 RabbitMQ
+    event_id = str(uuid.uuid4())
     message = json.dumps({
+        "event_id": event_id,
         "user_id": event.user_id,
         "question_id": event.question_id,
         "event_type": event.event_type,
-        "task": "analyze_single_question"
+        "payload": event.payload
     })
-    send_to_queue("ai_tasks", message)
-
+    # publish(message, 'ai_tasks')
     return {"status": "ok", "message": "事件已接收"}

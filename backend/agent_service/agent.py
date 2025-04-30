@@ -1,5 +1,5 @@
+from agent_service.nodes import init_node, tech_analysis_node, teaching_feedback_node
 from langgraph.graph import StateGraph, END
-from nodes import init_node, tech_analysis_node, teaching_feedback_node
 
 # 构建Agent工作流
 builder = StateGraph(dict)
@@ -10,10 +10,13 @@ builder.add_node("teaching_feedback", teaching_feedback_node)
 # 定义条件函数
 def router(state: dict):
     if state.get("event_type") == "edit":
+        print("edit")
         return "edit"
     elif state.get("event_type") == "submit":
+        print("submit")
         return "submit"
     else:
+        print("unknown")
         return "unknown"
 
 # 连接Agent工作流
@@ -37,6 +40,7 @@ agent = builder.compile()
 # 使用示例
 if __name__ == "__main__":
     print("test begin")
+
     test_state_edit = {
         "user_id": "123456",
         "question_id": "123456",
@@ -55,6 +59,8 @@ if __name__ == "__main__":
             "{type: \"unchanged\", value: \"}↵↵print(solution([1, 2, 5], 11))\", count: 3}"
         ]
     }
+
+    agent.invoke(test_state_edit)
 
     test_state_submit = {
         "user_id": "123456",
@@ -104,5 +110,5 @@ if __name__ == "__main__":
         ]
     }
 
-    result = agent.invoke(test_state_edit)
-    print(result)
+    agent.invoke(test_state_submit)
+

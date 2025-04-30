@@ -47,6 +47,27 @@ def query_data(table_name: str, filter_column: str, filter_value, target_column:
         return response.data
     except Exception as e:
         return f"Error executing query: {str(e)}"
+    
+
+@mcp.tool()
+def insert_data(table_name: str, data: dict) -> str:
+    
+    """
+    Insert data into a specified table.
+    
+    Args:
+        table_name (str): The name of the table to insert data into.
+        data (dict): The data to insert.
+    
+    Returns:
+        str: The result of the insertion or an error message.
+    """
+    try:
+        # Insert the data and execute the query
+        response = supabase.table(table_name).insert(data).execute()
+        return response.data
+    except Exception as e:
+        return f"Error inserting data: {str(e)}"
 
 
 if __name__ == "__main__":
