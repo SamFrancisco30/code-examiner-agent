@@ -144,7 +144,6 @@ app = graph.compile()
 
 
 def start_redis_listener():
-
     def listen_to_queue():
         queue = create_listener('init_queue', False)
         while True:
