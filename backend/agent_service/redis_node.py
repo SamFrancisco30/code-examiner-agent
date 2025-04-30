@@ -2,13 +2,14 @@ import asyncio
 import json
 import threading
 import time
+from http.client import responses
 
 from langgraph.graph import StateGraph, END
 from pydantic import BaseModel
 
-from data_service.rabbitmq import publish
-from data_service.redis_service.tools import list as redis_list
-from tool.listener import create_listener
+from backend.data_service.rabbitmq.rabbitmq import publish
+from backend.data_service.redis_service.tools import list as redis_list
+from backend.tool.listener import create_pipe
 
 
 # from agent_service.mcp_client import create_client, Agent
@@ -49,11 +50,6 @@ def init_node(state):
 # 节点1：处理 edit 事件
 def redis_save_node(state):
     print(f"处理edit事件，用户ID：{state['user_id']}")
-    # async def run(state):
-    #     responses = await redis_save_agent.ainvoke(json.dumps(state))
-    #     return responses
-    # responses = asyncio.run(run(state))
-    # print(f'redis_save_agent：{responses}')
     key = f"behavior:{state['user_id']}:{state['question_id']}"
     async def run(state):
         await redis_list.rpush(key, json.dumps(state))
@@ -74,13 +70,22 @@ def redis_load_node(state):
         responses = await redis_list.lrange(key, 0, -1)
         return responses
     results = asyncio.run(run())
-    for i, result in enumerate(results):
+    state['coding'] = results
+    return state
+
+
+def redis_merge_node(state):
+    coding = state['coding']
+    changes = []
+    for i, result in enumerate(coding):
         result = json.loads(result)
-        result['event_type'] = 'submit'
-        result = json.dumps(result)
-        results[i] = result
-    for result in results:
-        publish(result, 'llm_prompt')
+        time = f'{result["elapsed_time"]/1000}秒'
+        anal = result['tech_analysis']
+        changes.append({
+            "elapsedTime": time,
+            "changes": anal
+        })
+    state['tech_history'] = changes
     state["result"] = "提交操作完成"
     return state
 
@@ -119,6 +124,7 @@ graph.add_node("entry_point", init_node)  # 入口节点
 graph.add_node("redis_save_node", redis_save_node)
 graph.add_node("redis_load_node", redis_load_node)
 graph.add_node("redis_delete_node", redis_delete_node)
+graph.add_node("redis_merge_node", redis_merge_node)
 
 # 设置入口节点为 entry_point
 graph.set_entry_point("entry_point")
@@ -136,29 +142,12 @@ graph.add_conditional_edges(
 
 # 添加下一个节点，确保每个节点都有出口
 graph.add_edge("redis_save_node", END)
-graph.add_edge("redis_load_node", END)
+graph.add_edge("redis_load_node", 'redis_merge_node')
 graph.add_edge("redis_delete_node", END)
+graph.add_edge("redis_merge_node", END)
 
 # 编译
 app = graph.compile()
-
-
-def start_redis_listener():
-    def listen_to_queue():
-        queue = create_listener('init_queue', False)
-        while True:
-            try:
-                event_string = queue.get()  # 阻塞操作，等待队列中的数据
-                event_data = json.loads(event_string)  # 解析 JSON 字符串
-                app.invoke(event_data)  # 调用 app.invoke 处理事件
-            except Exception as e:
-                print(f"处理事件时发生错误: {e}")
-                time.sleep(1)
-    # 启动消息队列监听线程
-    listener_thread = threading.Thread(target=listen_to_queue)
-    listener_thread.daemon = True  # 设置为守护线程
-    listener_thread.start()
-    print()
 
 if __name__ == "__main__":
     # 创建事件数据

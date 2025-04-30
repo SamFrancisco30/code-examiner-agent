@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 rabbitmq_url = os.getenv("RABBITMQ_URL")
 
-def start_listener(call_back, queue_name: str = "ai_tasks"):
+def start_listener(call_back, queue_name: str = "ai_tasks", next_queue_name: str = None):
     """
     Starts a RabbitMQ listener for the specified queue.
     """
@@ -25,15 +25,14 @@ def start_listener(call_back, queue_name: str = "ai_tasks"):
             try:
                 # Parse the JSON message
                 if isinstance(body, bytes):
-                    message = body.decode('utf-8')
-                elif isinstance(body, dict):
                     message = json.loads(body)
                 elif isinstance(body, str):
-                    message = body
+                    message = json.loads(body)
                 else:
                     raise ValueError("Unsupported message type")
-                call_back(message)
-
+                result = call_back(message)
+                if next_queue_name:
+                    publish(result, next_queue_name)
                 # Acknowledge the message (remove from queue)
                 ch.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -64,6 +63,8 @@ def start_listener(call_back, queue_name: str = "ai_tasks"):
 
 
 def publish(message='hello world', queue_name: str ='ai_tasks'):
+    if isinstance(message, dict):
+        message = json.dumps(message)
     # 连接到 RabbitMQ 服务器
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()

@@ -1,9 +1,8 @@
 # backend/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from exec_service.routes import router as exec_router
-from data_service.routes import router as behavior_router
-
+from backend.route_service.exec_routes import router as exec_router
+from backend.route_service.anal_routes import router as behavior_router
 
 app = FastAPI(title="编程考试后端服务")
 
