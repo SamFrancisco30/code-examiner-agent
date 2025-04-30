@@ -75,14 +75,14 @@ cd code-examiner-agent/backend
 source venv/bin/activate  # Linux/Mac
 # venv\Scripts\activate  # Windows
 
-python ./mcp/supabase_server.py
+python ./my_mcp/supabase_server.py
 ```
 
 
 
 ## 使用方法
 
-1. 启动前端和后端服务器
+1. 启动前端、后端和mcp服务器
 2. 在浏览器中访问 `http://localhost:5173/`
 3. 在代码编辑器中编写Python代码
 4. 点击"执行代码"按钮运行代码
