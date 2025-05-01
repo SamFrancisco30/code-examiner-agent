@@ -8,7 +8,7 @@ const ResultPage: React.FC<ResultPageProps> = () => {
 
   return (
     <div>
-      <h1>LLMFeedBack</h1>
+      <h1>LLM Feed Back</h1>
       {data ? (
         <div>
           {data.summary && (

@@ -113,7 +113,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       user_id: 'test_user',
       question_id: currentQuestion?.id.toString() || 'unknown',
       event_type: 'submit',
-    })
+    });
+    // 立即跳转到 result 页面
+    navigate('/result', { state: { data: null } });
 
     try {
       const response = await fetch('http://localhost:8000/api/track_event', {
@@ -139,7 +141,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       }
       const data = await response.json();
       console.log('Event received:', data);
-      // 跳转到新页面并传递数据
+      // 这里可以通过某种状态管理或者上下文来更新 result 页面的数据
+      // 例如使用 React Context 或者 Redux 等状态管理工具
       navigate('/result', { state: { data } });
     } catch (err) {
       console.error('Error sending log to API:', err);
