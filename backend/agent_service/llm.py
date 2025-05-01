@@ -24,38 +24,38 @@ def init_node(state: dict):
 
 def tech_analysis_node(state):
     tech_prompt = f"""
-    你是一名高级开发工程师，擅长概括技术内容，你具备用精炼的话语描述代码演进情况与技术分析的能力。
-    注意事项：包含具体的技术说明和代码演进情况，语言要精炼准确，并注意分点表示。
-    你的输出应当使用json格式，并使用英文回答，具体如下：
+    You are a senior development engineer skilled in summarizing technical content, with the ability to concisely describe code evolution and provide technical analysis.
+    Note: Include specific technical explanations and code evolution details. The language should be concise and accurate, and points should be listed.
+    Your output should be in JSON format and answered in English, as follows:
     {{
         "tech_analysis": [str],
     }}
 
-    现在请分析如下代码演进：
+    Now please analyze the following code evolution:
 
-    [题目]
+    [Question]
     {state.get('question_name', '')}
 
-    [题目要求]
+    [Question Requirements]
     {state.get('question_desc', '')}
 
-    [示例输入]
+    [Example Input]
     {state.get('example_input', '')}
 
-    [示例输出]
+    [Example Output]
     {state.get('example_output', '')}
 
-    [时间消耗]
+    [Time Consumption]
     {state.get('elapsed_time', 0)}ms
 
-    [代码演进情况]
+    [Code Evolution]
     {state.get('code_diff', [])}
 
     """
 
     response = azure_llm(
         tech_prompt,
-        system_msg="你擅长识别代码改进和技术债务",
+        system_msg="You are good at identifying code improvements and technical debt",
         temp=0.2
     )
 
@@ -71,52 +71,52 @@ def tech_analysis_node(state):
 
 def teaching_feedback_node(state: dict):
     feedback_prompt = f"""
-    你是一名高级开发工程师兼计算机教学学者，擅长将技术分析转化为教学指导。
-    你将根据技术分析结果生成教学反馈，你的反馈应当囊括如下内容，并使用英文回答：
+    You are a senior development engineer and computer education scholar, skilled in transforming technical analysis into teaching guidance.
+    You will generate teaching feedback based on the technical analysis results. Your feedback should cover the following content and be answered in English:
 
-    1. 用户编程薄弱环节建议（用户在进行某些改动时花费时间很多）
-    2. 算法优化（时间/空间复杂度变化）
-    3. 可维护性（代码可读性）
-    4. 潜在风险（错误处理、边界条件）
+    1. Suggestions for users' weak programming areas (when users spend a lot of time making certain changes)
+    2. Algorithm optimization (changes in time/space complexity)
+    3. Maintainability (code readability)
+    4. Potential risks (error handling, boundary conditions)
 
-    [要求]
-    - 使用亲切的中文口吻
-    - 当用户的代码存在明显问题时，应当直截了当地指出
-    - 包含具体代码示例说明
+    [Requirements]
+    - Use a friendly Chinese tone. (Note: Since the output needs to be in English, this might be a conflict. Consider adjusting this requirement.)
+    - When there are obvious issues in the user's code, point them out directly.
+    - Include specific code examples for illustration.
 
-    [输出JSON格式]
+    [Output JSON format]
     {{
         "suggestions": [str],
         "summary": str
     }}
 
-    [题目]
+    [Question]
     {state.get('question_name', '')}
 
-    [题目要求]
+    [Question Requirements]
     {state.get('question_desc', '')}
 
-    [示例输入]
+    [Example Input]
     {state.get('example_input', '')}
 
-    [示例输出]
+    [Example Output]
     {state.get('example_output', '')}
 
-    [技术分析结果]
+    [Technical Analysis Results]
     {state.get('tech_history', [])}
     """
 
     response = azure_llm(
         feedback_prompt,
-        system_msg="你擅长将技术分析转化为教学指导",
+        system_msg="You are skilled in transforming technical analysis into teaching guidance",
         temp=0.5
     )
 
     try:
         feedback_data = json.loads(response) if response else {}
-        return {"feedback": feedback_data}
+        return feedback_data
     except:
-        return {"feedback": "反馈生成失败"}
+        return "feedback generate error"
 
 
 # 读取配置文件

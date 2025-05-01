@@ -3,6 +3,8 @@ import './App.css';
 import CodeEditor from './components/CodeEditor';
 import Question from './components/Question';
 import { supabase } from './components/Supabase';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ResultPage from './components/ResultPage';
 
 interface Question {
   id: number;
@@ -66,31 +68,56 @@ function App() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Python Online Testing Platform</h1>
-      </header>
-      <main className="main-content" ref={mainContentRef}>
-        <div className="questions-panel" style={{ flex: `0 0 ${questionPanelWidth}%` }}>
-          <Question
-            questions={questions}
-            currentQuestion={currentQuestion}
-            setCurrentQuestion={setCurrentQuestion}
-          />
-        </div>
-        <div
-          className="resize-handle"
-          ref={resizeHandleRef}
-          onMouseDown={startResizing}
-        />
-        <div className="editor-panel">
-          <CodeEditor currentQuestion={currentQuestion} />
-        </div>
-      </main>
-      <footer>
-        <p>Python Online Testing Platform © {new Date().getFullYear()}</p>
-      </footer>
-    </div>
+    <Router>
+      <div className="App">
+        <header className="App-header">
+          <h1>Python Online Testing Platform</h1>
+        </header>
+        <Routes>
+          <Route path="/" element={
+            <main className="main-content" ref={mainContentRef}>
+              <div className="questions-panel" style={{ flex: `0 0 ${questionPanelWidth}%` }}>
+                <Question
+                  questions={questions}
+                  currentQuestion={currentQuestion}
+                  setCurrentQuestion={setCurrentQuestion}
+                />
+              </div>
+              <div
+                className="resize-handle"
+                ref={resizeHandleRef}
+                onMouseDown={startResizing}
+              />
+              <div className="editor-panel">
+                <CodeEditor currentQuestion={currentQuestion} />
+              </div>
+            </main>
+          } />
+          <Route path="/result" element={
+            <main className="main-content" ref={mainContentRef}>
+              <div className="questions-panel" style={{ flex: `0 0 ${questionPanelWidth}%` }}>
+                <Question
+                  questions={questions}
+                  currentQuestion={currentQuestion}
+                  setCurrentQuestion={setCurrentQuestion}
+                />
+              </div>
+              <div
+                className="resize-handle"
+                ref={resizeHandleRef}
+                onMouseDown={startResizing}
+              />
+              <div className="editor-panel">
+                <ResultPage />
+              </div>
+            </main>
+          } />
+        </Routes>
+        <footer>
+          <p>Python Online Testing Platform © {new Date().getFullYear()}</p>
+        </footer>
+      </div>
+    </Router>
   );
 }
 

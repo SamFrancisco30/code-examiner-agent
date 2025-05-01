@@ -1,4 +1,5 @@
 import './Question.css';
+import { useNavigate } from 'react-router-dom';
 
 interface Question {
   id: number;
@@ -15,6 +16,8 @@ interface QuestionsProps {
 }
 
 const Questions: React.FC<QuestionsProps> = ({ questions, currentQuestion, setCurrentQuestion }) => {
+  const navigate = useNavigate();
+
   const clearDatabase = async () => {
     try {
       const response = await fetch('http://localhost:8000/api/track_event', {
@@ -54,6 +57,8 @@ const Questions: React.FC<QuestionsProps> = ({ questions, currentQuestion, setCu
               onClick={() => {
                 console.log('Selected question:', question);
                 setCurrentQuestion(question);
+                // 导航到根路径
+                navigate('/'); 
                 // clearDatabase();
               }}
             >

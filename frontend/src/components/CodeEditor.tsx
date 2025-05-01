@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import './CodeEditor.css';
 import * as diff from 'diff';
+import { useNavigate } from 'react-router-dom'; // 引入 useNavigate
 
 // 定义全局变量 captureInterval，用于控制代码捕获的时间间隔（单位：毫秒）
 const captureInterval = 30000;
@@ -31,6 +32,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const codeRef = useRef<string>(initialCode);
   const lastEditTimeRef = useRef<number>(Date.now());
+  const navigate = useNavigate(); // 使用 useNavigate
 
   const handleEditorChange = (value: string | undefined) => {
     if (value !== undefined) {
@@ -137,6 +139,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       }
       const data = await response.json();
       console.log('Event received:', data);
+      // 跳转到新页面并传递数据
+      navigate('/result', { state: { data } });
     } catch (err) {
       console.error('Error sending log to API:', err);
     }
