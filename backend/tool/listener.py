@@ -1,23 +1,21 @@
-import pika
-import threading
 import queue
-import sys
-import time
-from data_service.rabbitmq import start_listener
+import threading
 
+from backend.data_service.rabbitmq.rabbitmq import start_listener
 
 # 创建一个线程安全的队列，用于存放 RabbitMQ 消息
 message_queue = queue.Queue()
 
 
-def create_listener(queue_name=None, input_able=False):
+def create_pipe(queue_name=None, func=None, next_queue_name=None):
     message_queue = queue.Queue()
 
     def listen_to_queue():
         """
         消费消息并将其放入消息队列
         """
-        start_listener(put, queue_name)
+        callback = put if func is None else func
+        start_listener(callback, queue_name, next_queue_name)
 
     def put(x):
         message_queue.put(x)
@@ -27,19 +25,8 @@ def create_listener(queue_name=None, input_able=False):
     listener_thread.daemon = True  # 设置为守护线程，主线程退出时自动退出
     listener_thread.start()
 
-    # 模拟处理用户输入的函数
-    def handle_user_input():
-        while True:
-            user_input = input()
-            message_queue.put(user_input)
 
-    if input_able:
-        # 启动用户输入处理线程
-        input_thread = threading.Thread(target=handle_user_input)
-        input_thread.daemon = True
-        input_thread.start()
-
-    return message_queue
+    return message_queue if func is None else None
 
 
 # 启动队列监听和 LLM 消费

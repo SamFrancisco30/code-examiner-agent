@@ -1,6 +1,6 @@
-from data_service.redis_service.common.connection import RedisConnectionManager
+from backend.data_service.redis_service.common.connection import RedisConnectionManager
 from redis.exceptions import RedisError
-from data_service.redis_service.common.server import mcp
+from backend.data_service.redis_service.common.server import mcp
 
 @mcp.tool()
 async def lpush(name: str, value: str, expire: int = None) -> str:
