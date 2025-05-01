@@ -23,6 +23,7 @@
 
 - Node.js (v14+)
 - Python 3.10+
+- 后台启动redis服务
 - pnpm包管理器
     - Windows 环境下推荐使用 npm 安装 `npm install -g pnpm`
     - 在 VSCode 中使用终端时也许需要选择 Command Prompt：
@@ -64,20 +65,6 @@ docker-compose up -d
 # 启动后端服务器
 python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ```
-
-### MCP运行
-在`code-examiner-agent/backend`目录创建`.env`文件，格式参照`.env.example`，填入SUPABASE_KEY和OPENAI_API_KEY
-
-```bash
-# 进入后端目录
-cd code-examiner-agent/backend
-
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate  # Windows
-
-python ./my_mcp/supabase_server.py
-```
-
 
 
 ## 使用方法

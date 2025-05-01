@@ -55,3 +55,9 @@ async def track_event(event: BehaviorEvent):
         message = listener.get()
         print(f"Received message from listener: {message}")
         return message
+    else:
+        # return received OK
+        return {
+            "status": "OK",
+            "message": f"{message['event_type']} event received successfully"
+        }

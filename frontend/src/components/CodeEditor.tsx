@@ -69,17 +69,19 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           question_id: currentQuestion?.id.toString() || 'unknown',
           event_type: 'edit',
           payload: logMessages,
+          question_name: currentQuestion?.title || 'unknown',
+          question_desc: currentQuestion?.description || 'unknown',
+          example_input: currentQuestion?.example_input || 'unknown',
+          example_output: currentQuestion?.example_output || 'unknown',
+          elapsed_time: logMessages.elapsedTime,
+          code_diff: logMessages.changes
         }),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      if (data.status === 'ok') {
-        console.log('Code tracing event successfully received, backend message:', data.message);
-      } else {
-        console.warn('Backend returned non-success status:', data.message);
-      }
+      console.log('Received edit data from track_event API:', data);
     } catch (err) {
       console.error('Error sending log to API:', err);
     }
@@ -121,18 +123,20 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           user_id: 'test_user',
           question_id: currentQuestion?.id.toString() || 'unknown',
           event_type: 'submit',
-          payload: {}, // 提交时无需携带日志信息  
+          payload: {},
+          question_name: currentQuestion?.title || 'unknown',
+          question_desc: currentQuestion?.description || 'unknown',
+          example_input: currentQuestion?.example_input || 'unknown',
+          example_output: currentQuestion?.example_output || 'unknown',
+          elapsed_time: 0,
+          code_diff: []
         }),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      if (data.status === 'ok') {
-        console.log('Submit event successfully received, backend message:', data.message);
-      } else {
-        console.warn('Backend returned non-success status:', data.message);
-      }
+      console.log('Event received:', data);
     } catch (err) {
       console.error('Error sending log to API:', err);
     }

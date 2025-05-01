@@ -15,6 +15,33 @@ interface QuestionsProps {
 }
 
 const Questions: React.FC<QuestionsProps> = ({ questions, currentQuestion, setCurrentQuestion }) => {
+  const clearDatabase = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/track_event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: 'test_user',
+          question_id: currentQuestion?.id.toString() || 'unknown',
+          event_type: 'start',
+          payload: {},
+          question_name: currentQuestion?.title || 'unknown',
+          question_desc: currentQuestion?.description || 'unknown',
+          example_input: currentQuestion?.example_input || 'unknown',
+          example_output: currentQuestion?.example_output || 'unknown',
+          elapsed_time: 0,
+          code_diff: [],
+        }),
+      });
+      const data = await response.json();
+      console.log('Received edit data from track_event API:', data);
+    } catch (err) {
+      console.error('Error sending log to API:', err);
+    }
+  }
+
   return (
     <div className="questions-container">
       <div className="questions-list">
@@ -27,6 +54,7 @@ const Questions: React.FC<QuestionsProps> = ({ questions, currentQuestion, setCu
               onClick={() => {
                 console.log('Selected question:', question);
                 setCurrentQuestion(question);
+                // clearDatabase();
               }}
             >
               {question.title}

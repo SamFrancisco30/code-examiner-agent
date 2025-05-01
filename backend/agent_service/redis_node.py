@@ -25,24 +25,6 @@ class BehaviorEvent(BaseModel):
 class MyState(dict):
     pass
 
-# client = asyncio.run(create_client())
-#
-# redis_save_prompt = f"""
-#         你是一个redis存储工具，请按照以下规则处理传入的数据，传入的数据为state:
-#         注意计算出key时不要带有state。
-#         存储位置为\"behavior:state.user_id:state.question_id\"
-#         按照纯字符串处理传入的内容。
-#         存储数据为state.payload，使用rpush方法存储
-# """
-# redis_save_agent = Agent(client, prompt=redis_save_prompt)
-#
-# redis_load_prompt = f"""
-#         你是一个redis读取工具，请按照以下规则读取redis中的数据，传入的数据视为state:
-#         注意下列state只是用于表示传入的数据，计算出key时不要带有state。
-#         读取位置为\"behavior:state.user_id:state.question_id\"
-#         将读到的所有内容原样返回给我，不要输出任何其他内容。
-# """
-# redis_load_agent = Agent(client, prompt=redis_load_prompt)
 
 def init_node(state):
     return state
